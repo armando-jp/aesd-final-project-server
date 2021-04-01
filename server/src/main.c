@@ -12,6 +12,7 @@
 #include <signal.h>
 
 #include "gpio.h"
+#include "cli.h"
 
 #define PORT "3490"
 
@@ -113,18 +114,22 @@ int main(void)
         inet_ntop(their_addr.ss_family,
             get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
 
-        printf("server: got connection from %s\n", s);
+        printf("server: got connection from %s", s);
 
         // this is the child process
         if(!fork())
         {
             // child does not need the listener
             close(sockfd);
-            if (send(new_fd, "Hello. Thank you for calling the Beaglebone Hotline\n",
-                52, 0) == -1)
+            if (send(new_fd, welcome_msg, strlen(welcome_msg), 0) == -1)
             {
                 perror("send");
             }
+            // TODO: Implement while loop which waits for commands.
+            // while(1)
+            // {
+            //     //
+            // }
             close(new_fd);
             exit(0);
         }
