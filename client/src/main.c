@@ -10,8 +10,11 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <pthread.h>
 
 #define PORT "3490"
+#define MAXOUTBUF 100
+#define MAXINBUF 100
 
 #define MAXDATASIZE 100
 
@@ -25,10 +28,27 @@ void *get_in_addr(struct sockaddr *sa)
 
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
+
+// scans the input buffer for '\n' terminator
+int newline_found(void* buf, int len)
+{
+    char *p = (char *) buf;
+    for(; p != NULL; p++)
+    {
+        //printf("%c\n", *p);
+        if(*p == '\n')
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     int sockfd, numbytes;
     char buf[MAXDATASIZE];
+    char out_buf[MAXOUTBUF];
     struct addrinfo hints, *servinfo, *p;
     char s[INET6_ADDRSTRLEN];
     int rv;
@@ -94,6 +114,51 @@ int main(int argc, char *argv[])
     buf[numbytes] = '\0';
 
     printf("client: received '%s'\n", buf);
+
+    // create a process for sending messages
+
+    while(1)
+    {
+        fgets(out_buf, MAXOUTBUF, stdin);
+        printf("sending: %s", out_buf);
+        if (send(sockfd, out_buf, strlen(out_buf), 0) == -1)
+        {
+            perror("send");
+        }
+        memset(out_buf, 0, MAXOUTBUF);
+    }
+
+    // create a process for receiving messages
+    // if(!fork())
+    // {
+    //     char in_buf[MAXINBUF];
+    //     memset(in_buf, 0, MAXINBUF);
+    //     int count = 0;
+    //     rv = 0;
+    //
+    //     printf("Hello from the client listener process\n");
+    //     while(1)
+    //     {
+    //         do
+    //         {
+    //             printf("\nwaiting for message...\n");
+    //             rv = recv(sockfd, in_buf, MAXINBUF, 0);
+    //             if(rv == -1)
+    //             {
+    //                 perror("recv");
+    //                 exit(1);
+    //             }
+    //             if(rv == 0)
+    //             {
+    //                 printf("Remote client has closed connection\n");
+    //                 exit(1);
+    //             }
+    //             count += rv;
+    //         } while(!newline_found(in_buf, count));
+    //         printf("message received from %s: %s", s, in_buf);
+    //         memset(in_buf, 0, MAXINBUF);
+    //     }
+    // }
 
     close(sockfd);
 
