@@ -120,11 +120,18 @@ int main(int argc, char *argv[])
     while(1)
     {
         fgets(out_buf, MAXOUTBUF, stdin);
-        printf("sending: %s", out_buf);
+        printf("sending: %s\n", out_buf);
+        printf("size of: %ld\n", strlen(out_buf));
+        for(int i = 0; i < strlen(out_buf); i++)
+        {
+            printf("%d\n", *(out_buf+i));
+        }
+        printf("sending message\n");
         if (send(sockfd, out_buf, strlen(out_buf), 0) == -1)
         {
             perror("send");
         }
+        printf("sending message complete\n");
         memset(out_buf, 0, MAXOUTBUF);
     }
 

@@ -1,6 +1,6 @@
 IDIR =../include
 CC = gcc
-CFLAGS = -I $(IDIR) -Wall -Werror
+CFLAGS = -I $(IDIR) -Wall -Werror -pthread
 
 ODIR=obj
 LDIR=../lib
@@ -8,7 +8,7 @@ LDIR=../lib
 LIBS=
 
 #set of h files which .c files depend on
-_DEPS = gpio.h
+_DEPS = gpio.h circularbuffer.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ = main.o

@@ -27,7 +27,8 @@ CLICMDS cli[NUM_CMDS] =
     {"speed", "\tspeed\r\n", CMD_SPEED}
 };
 
-const char *welcome_msg = "Welcome to LAN Lights\n";
+const char *welcome_msg = "Welcome to LAN Lights";
+const char *confirmation = "Message received";
 
 
 #endif // _CLI_H_
