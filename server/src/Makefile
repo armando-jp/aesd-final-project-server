@@ -1,7 +1,17 @@
-IDIR =../include
-CC = gcc
-CFLAGS = -I $(IDIR) -Wall -Werror -pthread
+#CC = gcc
+#CFLAGS = -I $(IDIR) -Wall -Werror -pthread
 
+ifeq ($(CC),)
+	CC = $(CROSS_COMPILE)gcc
+endif
+ifeq ($(CFLAGS),)
+	CFLAGS = -g -Wall -Werror -pthread
+endif
+ifeq ($(LDFLAGS),)
+	LDFLAGS = -pthread -lrt
+endif
+
+IDIR =../include
 ODIR=obj
 LDIR=../lib
 
