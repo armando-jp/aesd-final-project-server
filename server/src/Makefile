@@ -15,7 +15,6 @@ IDIR =../include
 ODIR=obj
 LDIR=../lib
 
-LIBS=
 
 #set of h files which .c files depend on
 _DEPS = gpio.h circularbuffer.h
@@ -33,7 +32,7 @@ $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 server: $(OBJ)
-	$(CC) -o ../bin/$@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o ../bin/$@ $^ $(CFLAGS)
 
 .PHONY: clean
 
