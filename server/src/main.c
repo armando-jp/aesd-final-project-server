@@ -201,6 +201,7 @@ int create_daemon(int argc, char *argv[], int arg_sockfd)
     //      The parent process will receive the new child PID and should exit().
     //      The child shall continue execution as normal.
     // return 0 if daemon created successfully, -1 otherwise.
+    int rv;
     if ( argc > 1 )
     {
         for (int i = 0; i < argc; i++)
@@ -274,8 +275,16 @@ int create_daemon(int argc, char *argv[], int arg_sockfd)
 
             // redirect fd's 0, 1, 2 to /dev/null
             open ("/dev/null", O_RDWR); // stdin
-            dup(0);                     // stdout
-            dup(0);                     // stderror
+            rv = dup(0);                     // stdout
+            if(rv == -1)
+            {
+                perror("dup");
+            }
+            rv = dup(0);                     // stderror
+            if(rv == -1)
+            {
+                perror("dup");
+            }
 
         }
         else
