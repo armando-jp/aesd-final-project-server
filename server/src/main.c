@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
+
 
 #include "gpio.h"
 #include "cli.h"
@@ -19,6 +22,8 @@
 #define PORT "3490"
 #define MAXINBUF 100
 #define MAXOUTBUF 100
+
+#define PATH "sys/class/gpio/gpio115/value" // for GPIO control on BBB
 
 #define BACKLOG 10 //how many pending connections the queue will hold
 
@@ -189,7 +194,102 @@ void * sender_fnct (void *thread_args)
 
 }
 
-int main(void)
+int create_daemon(int argc, char *argv[], int arg_sockfd)
+{
+    // check if the first argument matches -d.
+    // IF true, fork the process
+    //      The parent process will receive the new child PID and should exit().
+    //      The child shall continue execution as normal.
+    // return 0 if daemon created successfully, -1 otherwise.
+    if ( argc > 1 )
+    {
+        for (int i = 0; i < argc; i++)
+        {
+            printf("got the argument: %s\n", argv[i]);
+        }
+
+        if( strcmp(argv[1], "-d") == 0 )
+        {
+            pid_t pid;
+            pid = fork();
+
+            // an error occured
+            if(pid == -1)
+            {
+                printf("Daemonization failed!\n");
+                return -1;
+            }
+
+            // success: let the parent terminate
+            if(pid != 0)
+            {
+                exit(EXIT_SUCCESS);
+            }
+
+            // create new session and process group; child becomes leader
+            if (setsid() == -1)
+            {
+                perror("setsid");
+                return -1;
+            }
+
+            // fork a second time
+            pid = fork();
+
+            // an error occured
+            if(pid == -1)
+            {
+                printf("Daemonization failed!\n");
+                return -1;
+            }
+
+            // success: let the parent terminate
+            if(pid != 0)
+            {
+                exit(EXIT_SUCCESS);
+            }
+
+            // set new file permissions
+            umask(0);
+
+            // set the working directory to the root directory
+            if ( chdir("/") == -1)
+            {
+                perror("chdir");
+                return -1;
+            }
+
+            //close all open files
+            for (int i =  sysconf(_SC_OPEN_MAX); i >= 0; i--)
+            {
+                if(i == arg_sockfd)
+                    continue;
+                close(i);
+            }
+
+            //openlog("aesdsocket", LOG_NDELAY, LOG_DAEMON);
+            //syslog(LOG_DEBUG, "Process is now a daemon\n");
+            //printf("Process is now a daemon!\n");
+            //openlog("aesdsocket")
+
+            // redirect fd's 0, 1, 2 to /dev/null
+            open ("/dev/null", O_RDWR); // stdin
+            dup(0);                     // stdout
+            dup(0);                     // stderror
+
+        }
+        else
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+    return -1;
+
+}
+
+int main(int argc, char *argv[])
 {
     int sockfd, new_fd; // listen on sockfd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
@@ -264,6 +364,9 @@ int main(void)
     }
 
     freeaddrinfo(servinfo); // we are finished with this structure
+
+    // check if the daemon option was requested
+    create_daemon(argc, argv, sockfd);
 
     if(p == NULL)
     {
