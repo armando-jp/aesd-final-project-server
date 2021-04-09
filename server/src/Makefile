@@ -33,7 +33,7 @@ all: server
 # 	$(CC) -c -o $@ $< $(CFLAGS)
 
 server: main.c
-	$(CC) $(CFLAGS) $^ -o $@ -I $(IDIR) $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $@ -I $(IDIR) $(LDFLAGS) -pthread
 
 .PHONY: clean
 
