@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
     //initialize a linked list of addrinfo structures (servinfo),
     //for each network address that matches node and service args.
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0)
+    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
