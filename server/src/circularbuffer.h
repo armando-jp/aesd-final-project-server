@@ -1,23 +1,20 @@
 #ifndef _CIRCULARBUFFER_H_
 #define _CIRCULARBUFFER_H_
 
-typedef struct _entry
-{
-    uint8_t state;
-    struct _entry *next;
-} BUFFER_ENTRY;
-
-typedef struct _circular_buffer
-{
-    BUFFER_ENTRY *head;
-    BUFFER_ENTRY *tail;
-    int entries;
-
-} CIRCULAR_BUFFER;
-
 int get_buf_entries(CIRCULAR_BUFFER *buf)
 {
     return buf->entries;
+}
+
+int buf_copy(CIRCULAR_BUFFER *in_buf, int size, CIRCULAR_BUFFER *out_buf)
+{
+    int i = 0;
+    while(i < size)
+    {
+        *(out_buf+i) = *(in_buf+i);
+        i++;
+    }
+    return i;
 }
 
 void add_entry(CIRCULAR_BUFFER *buf, uint8_t state)
