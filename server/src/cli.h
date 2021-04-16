@@ -137,8 +137,14 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
             break;
 
         case CMD_SPEED:
+    pthread_mutex_lock(&args->mutex);
             // update the speed at which the LED state changes in the pthread LED_RUN
-            printf("updating LED speed\n");
+            payload = in_buf+1; // get pointer to 2nd element in buffer
+            payload_size = size-1; // subtract one because we removed the first byte
+
+            args->speed = strtol(payload, NULL, 10);
+            printf("updating LED speed to %d\n", args->speed);
+    pthread_mutex_unlock(&args->mutex);
             break;
 
         case CMD_PRINT:

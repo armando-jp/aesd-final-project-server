@@ -25,6 +25,7 @@ typedef struct _thread_args
     char *s; // server IP address
     int condition;
     CIRCULAR_BUFFER *led_buf;
+    uint32_t speed;
 
 } THREAD_ARGS;
 

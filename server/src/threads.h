@@ -77,7 +77,7 @@ void *led_fnct(void *thread_args)
         c = ((led_entry)->state) + '0';
         write(fd, &c, 1);
         pthread_mutex_unlock(&args->mutex);
-        sleep(1);
+        usleep(args->speed);
 
         i = (i + 1) % entries;
         if(led_entry->next == NULL)
