@@ -76,22 +76,20 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
         }
     }
 
-    printf("rv: %d\n", rv);
+    // printf("rv: %d\n", rv);
     switch(rv)
     {
         case CMD_CLEAR:
             // stop the LED pthread
             // empty the contents of the LED cbuffer
             clear_buffer(args->led_buf);
-            print_buffer(args->led_buf);
+            printf("Buffer content cleared\n");
             break;
 
         case CMD_START:
             // check if the LED buffer is empty, if not empty then...
             // spawn a new pthread LED_RUN which handles driving the LED
     pthread_mutex_lock(&args->mutex);
-            // stop LED driver thread
-            // HERE <---------------->
             if(get_buf_entries(args->led_buf))
             {
                 printf("starting LED\n");
@@ -124,6 +122,12 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
             payload = in_buf+1; // get pointer to 2nd element in buffer
             payload_size = size-1; // subtract one because we removed the first byte
 
+            if(!is_binary_str(payload, payload_size))
+            {
+                pthread_mutex_unlock(&args->mutex);
+                printf("message payload contains invaild binary string");
+                break;
+            }
             // do loop to insert payload into buffer
             for(int i = 0; i < payload_size-1; i++) // subtract one because of '\n'
             {
@@ -132,8 +136,8 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
                 else
                     add_entry(args->led_buf, 1);
             }
-            print_buffer(args->led_buf);
     pthread_mutex_unlock(&args->mutex);
+            printf("Content appended\n");
             break;
 
         case CMD_SPEED:

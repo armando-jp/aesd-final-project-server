@@ -13,7 +13,6 @@ void * listener_fnct (void *thread_args)
     int count = 0;
     int rv = 0;
 
-    printf("test message: %s\n", args->test_txt);
     if (send(args->new_fd, args->test_txt, strlen(args->test_txt), 0) == -1)
     {
         perror("send");
@@ -25,7 +24,7 @@ void * listener_fnct (void *thread_args)
         {
             printf("\nwaiting for message...\n");
             rv = recv(args->new_fd, in_buf, MAXINBUF, 0);
-            printf("got something\n");
+            // printf("got something\n");
             if(rv == -1)
             {
                 perror("recv");
@@ -33,17 +32,14 @@ void * listener_fnct (void *thread_args)
             }
             if(rv == 0)
             {
-                printf("Remote client has closed connection\n");
+                printf("Remote client has closed connection\n\n");
                 pthread_exit(NULL);
             }
             count += rv;
         } while(!newline_found(in_buf, count));
 
-        process_msg(in_buf, rv, args);
-
-
-        //printf("newline was found!\n");
         printf("message received from %s: %s", args->s, in_buf);
+        process_msg(in_buf, rv, args);
         memset(in_buf, 0, MAXINBUF);
         count = 0;
     }

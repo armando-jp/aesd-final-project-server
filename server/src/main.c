@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     // pthread related variables
     pthread_t listener_thread;
     // pthread_t sender_thread;
-    int iret1;
+    // int iret1;
     // int iret2;
 
     // create the main LED buffer
@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
     printf("server waiting for connections...\n");
     while(1)
     {
-
         // store the size of the data structure used to store the caller's info
         sin_size = sizeof their_addr;
         // connect to pending request
@@ -141,12 +140,12 @@ int main(int argc, char *argv[])
         printf("server: got connection from %s\n", s);
 
         // create a listener and sender thread
-        iret1 = pthread_create( &listener_thread, NULL, listener_fnct, (void*) &thread_args);
-        printf("iret1: %d\n", iret1);
+        pthread_create( &listener_thread, NULL, listener_fnct, (void*) &thread_args);
+        // printf("iret1: %d\n", iret1);
         // iret2 = pthread_create( &sender_thread, NULL, sender_fnct, (void*) &thread_args);
         // printf("iret2: %d\n", iret2);
 
-        // pthread_join(listener_thread, NULL);
+        pthread_join(listener_thread, NULL);
         // pthread_join(sender_thread, NULL);
     }
 
