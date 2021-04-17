@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
         // iret2 = pthread_create( &sender_thread, NULL, sender_fnct, (void*) &thread_args);
         // printf("iret2: %d\n", iret2);
 
-        pthread_join(listener_thread, NULL);
+        // pthread_join(listener_thread, NULL);
         // pthread_join(sender_thread, NULL);
     }
 

@@ -29,12 +29,12 @@ void * listener_fnct (void *thread_args)
             if(rv == -1)
             {
                 perror("recv");
-                exit(1);
+                pthread_exit(NULL);
             }
             if(rv == 0)
             {
                 printf("Remote client has closed connection\n");
-                exit(1);
+                pthread_exit(NULL);
             }
             count += rv;
         } while(!newline_found(in_buf, count));
