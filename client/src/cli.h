@@ -104,7 +104,7 @@ void process_cmd(char* in_buf, char* out_buf)
     tok1 = strtok(in_buf, delim); // get first token
     tok2 = strtok(NULL, delim); // get second token
 
-    printf("tok1 = %s\t tok2 = %s\n", tok1, tok2);
+    //printf("tok1 = %s\t tok2 = %s\n", tok1, tok2);
 
     replace_newline(tok1, strlen(tok1)); // remove newline from token if necessary
     rv = get_msg_type(tok1, strlen(tok1)); // get msg type
@@ -133,7 +133,6 @@ void process_cmd(char* in_buf, char* out_buf)
             {
                 out_buf[i+1] = *(tok2+i);
             }
-            out_buf[i+1] = '\n';
 
             break;
 
@@ -153,7 +152,6 @@ void process_cmd(char* in_buf, char* out_buf)
             {
                 out_buf[i+1] = *(tok2+i);
             }
-            out_buf[i+1] = '\n';
 
             break;
 

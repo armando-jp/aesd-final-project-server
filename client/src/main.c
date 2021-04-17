@@ -127,7 +127,11 @@ int main(int argc, char *argv[])
         fgets(in_buf, MAXOUTBUF, stdin);
         process_cmd(in_buf, out_buf);
 
-        printf("sending: %s\n", out_buf);
+        //printf("sending: %s of size %ld\n", out_buf, strlen(out_buf));
+        // for(int i = 0; i < strlen(out_buf); i++)
+        // {
+        //     printf("%d\n", *(out_buf+i));
+        // }
         if (send(sockfd, out_buf, strlen(out_buf), 0) == -1)
         {
             perror("send");
