@@ -19,6 +19,8 @@
 #define MAXDATASIZE 100
 
 
+#include "cli.h"
+
 void *get_in_addr(struct sockaddr *sa)
 {
     if(sa->sa_family == AF_INET)
@@ -48,14 +50,16 @@ int main(int argc, char *argv[])
 {
     int sockfd, numbytes;
     char buf[MAXDATASIZE];
+    char in_buf[MAXINBUF];
     char out_buf[MAXOUTBUF];
+    //char raw_buf[MAXOUTBUF];
     struct addrinfo hints, *servinfo, *p;
     char s[INET6_ADDRSTRLEN];
     int rv;
 
     if (argc != 2)
     {
-        fprintf(stderr, "usage: client hostname\n");
+        fprintf(stderr, "usage: client [hostname/ip]\n");
         exit(1);
     }
 
@@ -119,20 +123,19 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        fgets(out_buf, MAXOUTBUF, stdin);
+        printf("> ");
+        fgets(in_buf, MAXOUTBUF, stdin);
+        process_cmd(in_buf, out_buf);
+
         printf("sending: %s\n", out_buf);
-        printf("size of: %ld\n", strlen(out_buf));
-        for(int i = 0; i < strlen(out_buf); i++)
-        {
-            printf("%d\n", *(out_buf+i));
-        }
-        printf("sending message\n");
         if (send(sockfd, out_buf, strlen(out_buf), 0) == -1)
         {
             perror("send");
         }
+
         printf("sending message complete\n");
         memset(out_buf, 0, MAXOUTBUF);
+        memset(in_buf, 0, MAXOUTBUF);
     }
 
     // create a process for receiving messages
