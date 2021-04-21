@@ -54,7 +54,7 @@ int get_msg_type(char *buf, int size)
     return -1;
 }
 
-int process_msg(char *in_buf, int size, THREAD_ARGS *args)
+int process_msg(char *in_buf, char *out_buf, int size, THREAD_ARGS *args)
 {
     int rv = -1;
     int payload_size;
@@ -76,14 +76,14 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
         }
     }
 
-    // printf("rv: %d\n", rv);
+    // PDEBUG("rv: %d\n", rv);
     switch(rv)
     {
         case CMD_CLEAR:
             // stop the LED pthread
             // empty the contents of the LED cbuffer
             clear_buffer(args->led_buf);
-            printf("Buffer content cleared\n");
+            PDEBUG("Buffer content cleared\n");
             break;
 
         case CMD_START:
@@ -92,23 +92,23 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
     pthread_mutex_lock(&args->mutex);
             if(get_buf_entries(args->led_buf))
             {
-                printf("starting LED\n");
+                PDEBUG("starting LED\n");
                 pthread_create( &(args->led_thread_id), NULL, led_fnct, (void*) args);
             }
             else
             {
-                printf("cmd buf is empty, not going to start LED\n");
+                PDEBUG("cmd buf is empty, not going to start LED\n");
             }
     pthread_mutex_unlock(&args->mutex);
             break;
 
         case CMD_STOP:
             // stop the LED pthread
-            printf("stopping LED\n");
+            PDEBUG("stopping LED\n");
             (args->condition) = 1;
             pthread_join(args->led_thread_id, NULL);
             (args->condition) = 0;
-            printf("stopping LED success\n");
+            PDEBUG("stopping LED success\n");
             break;
 
         case CMD_APPEND:
@@ -125,7 +125,7 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
             if(!is_binary_str(payload, payload_size))
             {
                 pthread_mutex_unlock(&args->mutex);
-                printf("message payload contains invaild binary string");
+                PDEBUG("message payload contains invaild binary string");
                 break;
             }
             // do loop to insert payload into buffer
@@ -137,7 +137,7 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
                     add_entry(args->led_buf, 1);
             }
     pthread_mutex_unlock(&args->mutex);
-            printf("Content appended\n");
+            PDEBUG("Content appended\n");
             break;
 
         case CMD_SPEED:
@@ -147,16 +147,22 @@ int process_msg(char *in_buf, int size, THREAD_ARGS *args)
             payload_size = size-1; // subtract one because we removed the first byte
 
             args->speed = strtol(payload, NULL, 10);
-            printf("updating LED speed to %d\n", args->speed);
+            PDEBUG("updating LED speed to %d\n", args->speed);
     pthread_mutex_unlock(&args->mutex);
             break;
 
         case CMD_PRINT:
+            // send buffer contents to client
+            rv = get_buffer(args->led_buf, out_buf);
+            if (send(args->new_fd, out_buf, rv, 0) == -1)
+            {
+                perror("send");
+            }
             print_buffer(args->led_buf);
             break;
 
         default:
-            printf("invalid command found\n");
+            PDEBUG("invalid command found\n");
             return -1;
     }
     return 0;

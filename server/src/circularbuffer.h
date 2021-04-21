@@ -51,13 +51,40 @@ void print_buffer(CIRCULAR_BUFFER *buf)
     BUFFER_ENTRY *p = NULL;
     p = buf->head;
 
-    printf("print: size of buffer: %d\n", buf->entries);
+    PDEBUG("print: size of buffer: %d\n", buf->entries);
     while(p != NULL)
     {
-        printf("entry %d: %d\n", i, p->state);
+        PDEBUG("entry %d: %d\n", i, p->state);
         i++;
         p = p->next;
     }
+}
+
+//copies the circular buffer contents into a character buffer
+// returns the size of the content written into out_buf
+int get_buffer(CIRCULAR_BUFFER *buf, char *out_buf)
+{
+    int i = 0;
+    BUFFER_ENTRY *p = NULL;
+    p = buf->head;
+    while(p != NULL)
+    {
+        PDEBUG("entry %d: %d\n", i, p->state);
+        if( p->state == 0 )
+        {
+            *(out_buf+i) = '0';
+        }
+        else
+        {
+            *(out_buf+i) = '1';
+        }
+
+        i++;
+        p = p->next;
+    }
+    *(out_buf+i) = '\n';
+
+    return i+1; // add one because of array starting at zero.
 }
 
 void clear_buffer(CIRCULAR_BUFFER *buf)
@@ -67,7 +94,7 @@ void clear_buffer(CIRCULAR_BUFFER *buf)
     BUFFER_ENTRY *p = NULL;
     p = buf->head;
 
-    printf("clear: size of buffer: %d\n", buf->entries);
+    PDEBUG("clear: size of buffer: %d\n", buf->entries);
 
     while(p != NULL)
     {
@@ -75,7 +102,7 @@ void clear_buffer(CIRCULAR_BUFFER *buf)
         free(p);
         p = p_next;
 
-        printf("removed entry %d\n", i);
+        PDEBUG("removed entry %d\n", i);
         i++;
     }
 

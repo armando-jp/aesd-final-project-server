@@ -17,7 +17,7 @@ int newline_found(void* buf, int len)
     char *p = (char *) buf;
     for(; p != NULL; p++)
     {
-        //printf("%c\n", *p);
+        //PDEBUG("%c\n", *p);
         if(*p == '\n')
         {
             return 1;
@@ -60,7 +60,7 @@ int create_daemon(int argc, char *argv[], int arg_sockfd)
     {
         for (int i = 0; i < argc; i++)
         {
-            printf("got the argument: %s\n", argv[i]);
+            PDEBUG("got the argument: %s\n", argv[i]);
         }
 
         if( strcmp(argv[1], "-d") == 0 )
@@ -71,7 +71,7 @@ int create_daemon(int argc, char *argv[], int arg_sockfd)
             // an error occured
             if(pid == -1)
             {
-                printf("Daemonization failed!\n");
+                PDEBUG("Daemonization failed!\n");
                 return -1;
             }
 
@@ -94,7 +94,7 @@ int create_daemon(int argc, char *argv[], int arg_sockfd)
             // an error occured
             if(pid == -1)
             {
-                printf("Daemonization failed!\n");
+                PDEBUG("Daemonization failed!\n");
                 return -1;
             }
 
@@ -124,7 +124,7 @@ int create_daemon(int argc, char *argv[], int arg_sockfd)
 
             //openlog("aesdsocket", LOG_NDELAY, LOG_DAEMON);
             //syslog(LOG_DEBUG, "Process is now a daemon\n");
-            //printf("Process is now a daemon!\n");
+            //PDEBUG("Process is now a daemon!\n");
             //openlog("aesdsocket")
 
             // redirect fd's 0, 1, 2 to /dev/null

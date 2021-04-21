@@ -1,6 +1,21 @@
 #ifndef _BUFFER_TYPE_H_
 #define _BUFFER_TYPE_H_
 
+//#define SERVER_DEBUG //Remove comment on this line to enable debug
+
+#undef PDEBUG             /* undef it, just in case */
+#ifdef SERVER_DEBUG
+#  ifdef __KERNEL__
+     /* This one if debugging is on, and kernel space */
+#    define PDEBUG(fmt, args...) printk( KERN_DEBUG "custom application: " fmt, ## args)
+#  else
+     /* This one for user space */
+#    define PDEBUG(fmt, args...) fprintf(stderr, fmt, ## args)
+#  endif
+#else
+#  define PDEBUG(fmt, args...) /* not debugging: nothing */
+#endif
+
 typedef struct _entry
 {
     uint8_t state;

@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    printf("server waiting for connections...\n");
+    PDEBUG("server waiting for connections...\n");
     while(1)
     {
         // store the size of the data structure used to store the caller's info
@@ -137,16 +137,12 @@ int main(int argc, char *argv[])
             get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
         thread_args.s = s;
 
-        printf("server: got connection from %s\n", s);
+        PDEBUG("server: got connection from %s\n", s);
 
         // create a listener and sender thread
         pthread_create( &listener_thread, NULL, listener_fnct, (void*) &thread_args);
-        // printf("iret1: %d\n", iret1);
-        // iret2 = pthread_create( &sender_thread, NULL, sender_fnct, (void*) &thread_args);
-        // printf("iret2: %d\n", iret2);
 
         pthread_join(listener_thread, NULL);
-        // pthread_join(sender_thread, NULL);
     }
 
     // never executes

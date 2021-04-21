@@ -18,7 +18,7 @@
 
 #define MAXDATASIZE 100
 
-
+#include "utils.h"
 #include "cli.h"
 
 void *get_in_addr(struct sockaddr *sa)
@@ -46,16 +46,65 @@ int newline_found(void* buf, int len)
     return 0;
 }
 
+void *listener_fnct(void *sockfd)
+{
+    int *sockfd_arg = (int*)sockfd;
+    // allocate the buffer memory and initialize with zeros
+    char in_buf[MAXINBUF];
+    memset(in_buf, 0, MAXINBUF);
+    int count = 0;
+    int rv = 0;
+    int i = 0;
+
+    while(1)
+    {
+        do
+        {
+            rv = recv(*sockfd_arg, in_buf, MAXINBUF, 0);
+            if(rv == -1)
+            {
+                perror("recv");
+                pthread_exit(NULL);
+            }
+            if(rv == 0)
+            {
+                printf("Remote client has closed connection\n\n");
+                pthread_exit(NULL);
+            }
+            count += rv;
+        } while(!newline_found(in_buf, count));
+
+        printf("LED States\n");
+        while(*(in_buf+i) != '\n')
+        {
+            printf("State %d = %c\n", i, *(in_buf+i));
+            i++;
+        }
+
+        //printf("message received from %d: %s", *sockfd_arg, in_buf);
+        memset(in_buf, 0, MAXINBUF);
+        count = 0;
+        i = 0;
+    }
+    // should never get to this point
+    close(*sockfd_arg);
+    exit(0);
+
+}
+
 int main(int argc, char *argv[])
 {
     int sockfd, numbytes;
     char buf[MAXDATASIZE];
     char in_buf[MAXINBUF];
     char out_buf[MAXOUTBUF];
-    //char raw_buf[MAXOUTBUF];
+    //char raw_buf[MAXOUTBUF];, 0, MAXINBUF);
+    int rv = 0;
+
     struct addrinfo hints, *servinfo, *p;
     char s[INET6_ADDRSTRLEN];
-    int rv;
+
+    pthread_t listener_thread;
 
     if (argc != 2)
     {
@@ -119,8 +168,11 @@ int main(int argc, char *argv[])
 
     printf("client: received '%s'\n", buf);
 
-    // create a process for sending messages
+    // create a pthread for receiving messages and displaying to user
+    pthread_create( &listener_thread, NULL, listener_fnct, (void*) &sockfd);
 
+
+    // this process will send commands to server
     while(1)
     {
         printf("> ");
@@ -137,42 +189,10 @@ int main(int argc, char *argv[])
             perror("send");
         }
 
-        printf("sending message complete\n");
+        PDEBUG("sending message complete\n");
         memset(out_buf, 0, MAXOUTBUF);
         memset(in_buf, 0, MAXOUTBUF);
     }
-
-    // create a process for receiving messages
-    // if(!fork())
-    // {
-    //     char in_buf[MAXINBUF];
-    //     memset(in_buf, 0, MAXINBUF);
-    //     int count = 0;
-    //     rv = 0;
-    //
-    //     printf("Hello from the client listener process\n");
-    //     while(1)
-    //     {
-    //         do
-    //         {
-    //             printf("\nwaiting for message...\n");
-    //             rv = recv(sockfd, in_buf, MAXINBUF, 0);
-    //             if(rv == -1)
-    //             {
-    //                 perror("recv");
-    //                 exit(1);
-    //             }
-    //             if(rv == 0)
-    //             {
-    //                 printf("Remote client has closed connection\n");
-    //                 exit(1);
-    //             }
-    //             count += rv;
-    //         } while(!newline_found(in_buf, count));
-    //         printf("message received from %s: %s", s, in_buf);
-    //         memset(in_buf, 0, MAXINBUF);
-    //     }
-    // }
 
     close(sockfd);
 

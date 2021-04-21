@@ -42,7 +42,6 @@ int get_msg_type(char *buf, int size)
 
     for(int i = 0; i < NUM_CMDS; i++)
     {
-        //printf("cmd = %s\t buf = %s\n", cli_cmds[i].name, buf);
         if( strcmp((cli_cmds[i].name), buf) == 0 )
         {
             return  i+1;
@@ -104,7 +103,7 @@ void process_cmd(char* in_buf, char* out_buf)
     tok1 = strtok(in_buf, delim); // get first token
     tok2 = strtok(NULL, delim); // get second token
 
-    //printf("tok1 = %s\t tok2 = %s\n", tok1, tok2);
+    PDEBUG("tok1 = %s\t tok2 = %s\n", tok1, tok2);
 
     replace_newline(tok1, strlen(tok1)); // remove newline from token if necessary
     rv = get_msg_type(tok1, strlen(tok1)); // get msg type
@@ -112,20 +111,20 @@ void process_cmd(char* in_buf, char* out_buf)
     switch(rv)
     {
         case CMD_START:
-            printf("Got START!\n");
+            PDEBUG("Got START!\n");
             out_buf[0] = 'S';
             out_buf[1] = '\n';
             break;
 
         case CMD_CLEAR:
-            printf("Got CLEAR!\n");
+            PDEBUG("Got CLEAR!\n");
             out_buf[0] = 'C';
             out_buf[1] = '\n';
             break;
 
         case CMD_APPEND:
-            printf("Got APPEND!\n");
-            printf("WITH ARG = %s\n", tok2);
+            PDEBUG("Got APPEND!\n");
+            PDEBUG("WITH ARG = %s\n", tok2);
 
             //build payload
             out_buf[0] = 'A';
@@ -137,14 +136,14 @@ void process_cmd(char* in_buf, char* out_buf)
             break;
 
         case CMD_STOP:
-            printf("Got STOP!\n");
+            PDEBUG("Got STOP!\n");
             out_buf[0] = 'T';
             out_buf[1] = '\n';
             break;
 
         case CMD_SPEED:
-            printf("Got SPEED!\n");
-            printf("WITH ARG = %s\n", tok2);
+            PDEBUG("Got SPEED!\n");
+            PDEBUG("WITH ARG = %s\n", tok2);
 
             //build payload
             out_buf[0] = 'D';
@@ -156,19 +155,16 @@ void process_cmd(char* in_buf, char* out_buf)
             break;
 
         case CMD_PRINT:
-            printf("Got PRINT!\n");
+            PDEBUG("Got PRINT!\n");
             out_buf[0] = 'P';
             out_buf[1] = '\n';
             break;
 
         default:
-            printf("invalid command\n");
+            PDEBUG("invalid command\n");
             print_menu();
             break;
     }
-    // printf("command found: %d\n", cmd);
-    // printf("buffer contains: %s\n", buf);
-    // printf("buffer size: %d\n", size);
 
 }
 #endif // _CLI_H_

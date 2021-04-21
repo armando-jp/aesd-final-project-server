@@ -9,6 +9,7 @@ void * listener_fnct (void *thread_args)
     THREAD_ARGS *args = (THREAD_ARGS *) thread_args;
     // allocate the buffer memory and initialize with zeros
     char in_buf[MAXINBUF];
+    char out_buf[MAXOUTBUF];
     memset(in_buf, 0, MAXINBUF);
     int count = 0;
     int rv = 0;
@@ -22,9 +23,8 @@ void * listener_fnct (void *thread_args)
     {
         do
         {
-            printf("\nwaiting for message...\n");
+            PDEBUG("\nwaiting for message...\n");
             rv = recv(args->new_fd, in_buf, MAXINBUF, 0);
-            // printf("got something\n");
             if(rv == -1)
             {
                 perror("recv");
@@ -32,14 +32,14 @@ void * listener_fnct (void *thread_args)
             }
             if(rv == 0)
             {
-                printf("Remote client has closed connection\n\n");
+                PDEBUG("Remote client has closed connection\n\n");
                 pthread_exit(NULL);
             }
             count += rv;
         } while(!newline_found(in_buf, count));
 
-        printf("message received from %s: %s", args->s, in_buf);
-        process_msg(in_buf, rv, args);
+        PDEBUG("message received from %s: %s", args->s, in_buf);
+        process_msg(in_buf, out_buf, rv, args);
         memset(in_buf, 0, MAXINBUF);
         count = 0;
     }
@@ -55,21 +55,18 @@ void *led_fnct(void *thread_args)
     char c;
     int fd;
     int entries = get_buf_entries(args->led_buf);
-    printf("led thread: number of entries = %d\n", entries);
+    PDEBUG("led thread: number of entries = %d\n", entries);
     fd = open(PATH, O_WRONLY);
     BUFFER_ENTRY *led_entry = NULL;
     led_entry = (args->led_buf->head);
 
     print_buffer(args->led_buf);
 
-    // struct timeval tv = { .tv_sec = 1print_buffer(args->led_buf);,
-    //                       .tv_usec = 0 };
-
     while(1)
     {
         // check here for termination signal
         pthread_mutex_lock(&args->mutex);
-        printf("entry %d from thread = %d\n", i, (led_entry)->state);
+        PDEBUG("entry %d from thread = %d\n", i, (led_entry)->state);
         c = ((led_entry)->state) + '0';
         write(fd, &c, 1);
         pthread_mutex_unlock(&args->mutex);
@@ -88,7 +85,7 @@ void *led_fnct(void *thread_args)
         // check for termination signal
         if((args->condition))
         {
-            printf("led_thread: got termination signal, goodbye!\n");
+            PDEBUG("led_thread: got termination signal, goodbye!\n");
             close(fd);
             pthread_exit(NULL);
         }
