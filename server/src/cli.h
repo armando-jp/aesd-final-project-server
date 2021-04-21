@@ -80,7 +80,18 @@ int process_msg(char *in_buf, char *out_buf, int size, THREAD_ARGS *args)
     switch(rv)
     {
         case CMD_CLEAR:
-            // stop the LED pthread
+            if(!args->thread_is_running)
+            {
+                PDEBUG("No active LED thread\n");
+            }
+            else
+            {
+                // stop the LED pthread
+                (args->condition) = 1;
+                pthread_join(args->led_thread_id, NULL);
+                (args->condition) = 0;
+            }
+
             // empty the contents of the LED cbuffer
             clear_buffer(args->led_buf);
             PDEBUG("Buffer content cleared\n");
@@ -103,6 +114,12 @@ int process_msg(char *in_buf, char *out_buf, int size, THREAD_ARGS *args)
             break;
 
         case CMD_STOP:
+        // check if thread is running. if not, break out early
+            if(!args->thread_is_running)
+            {
+                PDEBUG("No active LED thread\n");
+                break;
+            }
             // stop the LED pthread
             PDEBUG("stopping LED\n");
             (args->condition) = 1;

@@ -54,7 +54,9 @@ int main(int argc, char *argv[])
     pthread_cond_init(&thread_args.cond, NULL);
     thread_args.test_txt = welcome_msg;
     thread_args.condition = 0;
+    thread_args.thread_is_running = 0;
     thread_args.led_buf = &led_buf;
+    thread_args.speed = 1000000; // 1 second
 
 
     memset(&hints, 0, sizeof(hints));

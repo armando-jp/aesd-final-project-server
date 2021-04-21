@@ -1,7 +1,7 @@
 #ifndef _BUFFER_TYPE_H_
 #define _BUFFER_TYPE_H_
 
-//#define SERVER_DEBUG //Remove comment on this line to enable debug
+#define SERVER_DEBUG //Remove comment on this line to enable debug
 
 #undef PDEBUG             /* undef it, just in case */
 #ifdef SERVER_DEBUG
@@ -39,6 +39,7 @@ typedef struct _thread_args
     const char *test_txt; // test string
     char *s; // server IP address
     int condition;
+    int thread_is_running;
     CIRCULAR_BUFFER *led_buf;
     uint32_t speed;
 

@@ -55,6 +55,7 @@ void *led_fnct(void *thread_args)
     char c;
     int fd;
     int entries = get_buf_entries(args->led_buf);
+    args->thread_is_running = 1;
     PDEBUG("led thread: number of entries = %d\n", entries);
     fd = open(PATH, O_WRONLY);
     BUFFER_ENTRY *led_entry = NULL;
@@ -86,6 +87,7 @@ void *led_fnct(void *thread_args)
         if((args->condition))
         {
             PDEBUG("led_thread: got termination signal, goodbye!\n");
+            args->thread_is_running = 0;
             close(fd);
             pthread_exit(NULL);
         }
